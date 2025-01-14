@@ -1,6 +1,4 @@
 terraform {
-  required_version = ">= 1.1.0" # Ensure that the Terraform version is 1.0.0 or higher
-
   required_providers {
     aws = {
       source = "hashicorp/aws" # Specify the source of the AWS provider
@@ -10,12 +8,12 @@ terraform {
       source  = "hashicorp/random"
       version = "3.4.3"
     }
-    cloud {
-      organization = "TheLonelyGecko"
+  }
+  backend "remote" {
+    organization = "TheLonelyGecko"
 
-      workspaces {
-        name = "btlutz"
-      }
+    workspaces {
+      name = "btlutz"
     }
   }
 }
