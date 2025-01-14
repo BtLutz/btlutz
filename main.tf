@@ -51,8 +51,6 @@ data "aws_ami" "ubuntu" {
   filter {
     name   = "virtualization-type"
     values = ["hmv"]
-
-    owners = "099720109477"
   }
 }
 resource "aws_instance" "web" {
