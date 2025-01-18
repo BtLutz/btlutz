@@ -50,8 +50,10 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "virtualization-type"
-    values = ["hmv"]
+    values = ["hvm"]
   }
+
+  owners = ["099720109477"] # Canonical
 }
 resource "aws_instance" "web" {
   ami                    = data.aws_ami.ubuntu.id
