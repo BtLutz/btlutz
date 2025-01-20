@@ -25,3 +25,7 @@ provider "aws" {
 resource "aws_ecr_repository" "btlutz" {
   name = "btlutz"
 }
+
+resource "aws_ecs_cluster" "btlutz" {
+  name = "btlutz"
+}
