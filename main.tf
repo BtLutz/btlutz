@@ -41,8 +41,26 @@ resource "aws_security_group" "web-sg" {
   egress = []
 }
 
+resource "aws_ecs_task_definition" "btlutz" {
+  family = "btlutz"
+  container_definitions = jsonencode([
+    {
+      name      = "btlutz"
+      image     = "btlutz"
+      cpu       = 256
+      memory    = 512
+      essential = true
+      portMappings = [
+        {
+          containerPort = 8080
+          hostPort      = 8080
+      }]
+  }])
+}
+
 resource "aws_ecs_service" "btlutz" {
   name          = "btlutz"
   cluster       = aws_ecs_cluster.btlutz.id
+  task_definition = aws_ecs_task_definition.btlutz.arn
   desired_count = 1
 }
