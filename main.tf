@@ -42,7 +42,7 @@ resource "aws_security_group" "web-sg" {
 }
 
 resource "aws_ecs_service" "btlutz" {
-  name            = "btlutz"
-  cluster         = aws_ecs_cluster.btlutz.id
-  desired_count   = 1
+  name          = "btlutz"
+  cluster       = aws_ecs_cluster.btlutz.id
+  desired_count = 1
 }
