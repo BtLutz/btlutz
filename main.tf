@@ -32,11 +32,28 @@ resource "aws_ecs_cluster" "btlutz" {
 
 resource "aws_security_group" "web-sg" {
   name = "btlutz-sg"
-  ingress = {
+  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress = []
+}
+
+resource "aws_ecs_task_definition" "service" {
+  family = "btlutz"
+  container_definitions = jsonencode([
+    {
+      name      = "btlutz"
+      image     = "btlutz"
+      cpu       = 256
+      memory    = 512
+      essential = true
+      portMappings = [
+        {
+          containerPort = 8080
+          hostPort      = 8080
+      }]
+  }])
 }
