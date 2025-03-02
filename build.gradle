@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.bmuschko.docker-spring-boot-application' version '9.4.0'
 }
 
 group = 'com.thelonelygecko'
@@ -25,4 +26,10 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+docker {
+	registryCredentials {
+		url = 'public.ecr.aws/r4q2c0k0/btlutz'
+	}
 }
