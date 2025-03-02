@@ -64,4 +64,8 @@ resource "aws_ecs_service" "btlutz" {
   cluster         = aws_ecs_cluster.btlutz.id
   task_definition = aws_ecs_task_definition.btlutz.arn
   desired_count   = 1
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = false
+  }
 }
