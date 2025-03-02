@@ -22,8 +22,8 @@ provider "aws" {
   region = "us-east-1" # Set the AWS region to US East (N. Virginia)
 }
 
-resource "aws_ecrpublic_repository" "btlutz" {
-  repository_name = "btlutz"
+resource "aws_ecr_repository" "btlutz" {
+  name = "btlutz"
 }
 
 resource "aws_ecs_cluster" "btlutz" {
