@@ -43,6 +43,7 @@ resource "aws_security_group" "web-sg" {
 
 resource "aws_ecs_task_definition" "btlutz" {
   family       = "btlutz"
+  network_mode = "none"
   container_definitions = jsonencode([
     {
       name      = "btlutz"
@@ -58,9 +59,9 @@ resource "aws_ecs_task_definition" "btlutz" {
   }])
 }
 
-# resource "aws_ecs_service" "btlutz" {
-#   name            = "btlutz"
-#   cluster         = aws_ecs_cluster.btlutz.id
-#   task_definition = aws_ecs_task_definition.btlutz.arn
-#   desired_count   = 1
-# }
+resource "aws_ecs_service" "btlutz" {
+  name            = "btlutz"
+  cluster         = aws_ecs_cluster.btlutz.id
+  task_definition = aws_ecs_task_definition.btlutz.arn
+  desired_count   = 1
+}
