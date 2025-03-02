@@ -70,6 +70,6 @@ jobs:
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          ./gradlew bootBuildImage --imageName=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          ./gradlew bootBuildImage --imageName=public.aws.ecr/$ECR_REPOSITORY:$IMAGE_TAG
           docker push public.ecr.aws/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
