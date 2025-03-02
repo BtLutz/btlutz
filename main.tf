@@ -43,7 +43,7 @@ resource "aws_security_group" "web-sg" {
 
 resource "aws_ecs_task_definition" "btlutz" {
   family       = "btlutz"
-  network_mode = "none"
+  network_mode = "host"
   container_definitions = jsonencode([
     {
       name      = "btlutz"
