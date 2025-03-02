@@ -32,7 +32,8 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: public.ecr.aws/r4q2c0k0/btlutz
+  ECR_REGISTRY: public.ecr.aws
+  ECR_REPOSITORY: r4q2c0k0/btlutz
 
 permissions:
   contents: read
