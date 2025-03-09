@@ -222,6 +222,7 @@ resource "aws_ecs_task_definition" "btlutz" {
         {
           containerPort = 80
           hostPort      = 80
+          protocol      = "tcp"
       }]
   }])
 }
