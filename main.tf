@@ -194,7 +194,7 @@ resource "aws_ecs_cluster_capacity_providers" "btlutz" {
 resource "aws_ecs_task_definition" "btlutz" {
   family             = "btlutz"
   network_mode       = "awsvpc"
-  execution_role_arn = "arn:aws:iam::532199187081:role/ecsTaskExecutionRole"
+  execution_role_arn = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
   cpu                = 256
   runtime_platform {
     operating_system_family = "LINUX"
