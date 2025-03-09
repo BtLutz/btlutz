@@ -190,7 +190,6 @@ resource "aws_ecs_cluster_capacity_providers" "btlutz" {
   }
 }
 
-
 resource "aws_ecs_task_definition" "btlutz" {
   family             = "btlutz"
   network_mode       = "awsvpc"
