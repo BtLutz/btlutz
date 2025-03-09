@@ -18,8 +18,142 @@ terraform {
   }
 }
 
+locals {
+  region = "us-east-1"
+}
+
 provider "aws" {
-  region = "us-east-1" # Set the AWS region to US East (N. Virginia)
+  region = local.region
+}
+
+resource "aws_vpc" "btlutz" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames =  true
+  tags = {
+    name = "btlutz"
+  }
+}
+
+resource "aws_subnet" "btlutz" {
+  vpc_id = aws_vpc.btlutz.id
+  cidr_block = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
+  map_public_ip_on_launch = true
+  availability_zone = local.region
+}
+
+resource "aws_internet_gateway" "btlutz" {
+  vpc_id = aws_vpc.btlutz.id
+  tags = {
+    Name = "aws_internet_gateway"
+  }
+}
+
+resource "aws_route_table" "aws_route_table" {
+  vpc_id = aws_vpc.btlutz.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.btlutz.id
+  }
+}
+
+resource "aws_route_table_association" "btlutz" {
+  subnet_id = aws_subnet.btlutz.id
+  route_table_id = aws_route_table.aws_route_table.id
+}
+
+resource "aws_security_group" "btlutz" {
+  name = "aws_security_group"
+  vpc_id = aws_vpc.btlutz.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    self = "false"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress = []
+}
+
+resource "aws_launch_template" "btlutz" {
+  name_prefix = "ecs-template"
+  image_id = "ami-062c116e449466e7f"
+  instance_type = "t3.micro"
+
+  vpc_security_group_ids = [aws_security_group.btlutz.id]
+  iam_instance_profile {
+    name = "ecsInstanceRole"
+  }
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = 30
+      volume_type = "gp2"
+    }
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "ecs-instance"
+    }
+  }
+
+  user_data = filebase64("${path.module}/ecs.sh")
+}
+
+resource "aws_autoscaling_group" "btlutz" {
+  vpc_zone_identifier = [aws_subnet.btlutz.id]
+  desired_capacity = 1
+  max_size = 1
+  min_size = 1
+
+  launch_template {
+    id = aws_launch_template.btlutz.id
+    version = "$Latest"
+  }
+
+  tag {
+    key = "AmazonECSManaged"
+    value = true
+    propagate_at_launch = true
+  }
+}
+
+resource "aws_lb" "btlutz" {
+  name = "btlutz"
+  internal = false
+  load_balancer_type = "application"
+  security_groups = [aws_security_group.btlutz.id]
+  subnets = [aws_subnet.btlutz.id]
+
+  tags = {
+    Name = "btlutz"
+  }
+}
+
+resource "aws_lb_target_group" "btlutz" {
+  name = "btlutz"
+  port = 80
+  protocol = "HTTP"
+  target_type = "ip"
+  vpc_id = aws_vpc.btlutz.id
+
+  health_check {
+    path = "/"
+  }
+}
+
+resource "aws_lb_listener" "ecs_alb_listener" {
+  load_balancer_arn = aws_lb.btlutz.arn
+  port = 80
+  protocol = "HTTP"
+
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.btlutz.arn
+  }
 }
 
 resource "aws_ecr_repository" "btlutz" {
@@ -29,34 +163,56 @@ resource "aws_ecr_repository" "btlutz" {
 resource "aws_ecs_cluster" "btlutz" {
   name = "btlutz"
 }
+resource "aws_ecs_capacity_provider" "btlutz" {
+  name = "btlutz"
 
-resource "aws_security_group" "web-sg" {
-  name = "btlutz-sg"
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  auto_scaling_group_provider {
+    auto_scaling_group_arn = aws_autoscaling_group.btlutz.arn
+
+    managed_scaling {
+      maximum_scaling_step_size = 1000
+      minimum_scaling_step_size = 1
+      status = "ENABLED"
+      target_capacity = 1
+    }
   }
-  egress = []
 }
+
+resource "aws_ecs_cluster_capacity_providers" "btlutz" {
+  cluster_name = aws_ecs_cluster.btlutz.name
+
+  capacity_providers = [aws_ecs_capacity_provider.btlutz.name]
+
+  default_capacity_provider_strategy {
+    base = 1
+    weight = 100
+    capacity_provider = aws_ecs_capacity_provider.btlutz.name
+  }
+}
+
 
 resource "aws_ecs_task_definition" "btlutz" {
   family       = "btlutz"
-  network_mode = "host"
+  network_mode = "awsvpc"
+  execution_role_arn = "arn:aws:iam::532199187081:role/ecsTaskExecutionRole"
+  cpu = 256
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture = "X86_64"
+  }
   container_definitions = jsonencode([
     {
-      name      = "btlutz"
-      image     = "${aws_ecr_repository.btlutz.repository_url}:latest"
+      name      = "dockergs"
+      image     = "public.ecr.aws/f9n5f1l7/dgs:latest"
       cpu       = 256
       memory    = 512
       essential = true
       portMappings = [
         {
-          containerPort = 8080
-          hostPort      = 8080
-      }]
-  }])
+          containerPort = 80
+          hostPort      = 80
+        }]
+    }])
 }
 
 resource "aws_ecs_service" "btlutz" {
@@ -64,8 +220,33 @@ resource "aws_ecs_service" "btlutz" {
   cluster         = aws_ecs_cluster.btlutz.id
   task_definition = aws_ecs_task_definition.btlutz.arn
   desired_count   = 1
+
+  network_configuration {
+    subnets = [aws_subnet.btlutz.id]
+    security_groups = [aws_security_group.btlutz.id]
+  }
+
+  force_new_deployment = true
+
+  triggers = {
+    redeployment = timestamp()
+  }
+
+  capacity_provider_strategy {
+    capacity_provider = aws_ecs_capacity_provider.btlutz.name
+    weight = 100
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.btlutz.arn
+    container_name = "dockergs"
+    container_port = 80
+  }
+
   deployment_circuit_breaker {
     enable   = true
     rollback = false
   }
+
+  depends_on = [aws_autoscaling_group.btlutz]
 }
