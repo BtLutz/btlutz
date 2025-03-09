@@ -43,7 +43,7 @@ resource "aws_subnet" "btlutz_a" {
 
 resource "aws_subnet" "btlutz_b" {
   vpc_id                  = aws_vpc.btlutz.id
-  cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
+  cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 2)
   map_public_ip_on_launch = true
   availability_zone       = "us-east-1a"
 }
