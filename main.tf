@@ -27,18 +27,18 @@ provider "aws" {
 }
 
 resource "aws_vpc" "btlutz" {
-  cidr_block = "10.0.0.0/16"
-  enable_dns_hostnames =  true
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
   tags = {
     name = "btlutz"
   }
 }
 
 resource "aws_subnet" "btlutz" {
-  vpc_id = aws_vpc.btlutz.id
-  cidr_block = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
+  vpc_id                  = aws_vpc.btlutz.id
+  cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
   map_public_ip_on_launch = true
-  availability_zone = local.region
+  availability_zone       = local.region
 }
 
 resource "aws_internet_gateway" "btlutz" {
@@ -57,27 +57,27 @@ resource "aws_route_table" "aws_route_table" {
 }
 
 resource "aws_route_table_association" "btlutz" {
-  subnet_id = aws_subnet.btlutz.id
+  subnet_id      = aws_subnet.btlutz.id
   route_table_id = aws_route_table.aws_route_table.id
 }
 
 resource "aws_security_group" "btlutz" {
-  name = "aws_security_group"
+  name   = "aws_security_group"
   vpc_id = aws_vpc.btlutz.id
 
   ingress {
     from_port   = 0
     to_port     = 0
     protocol    = -1
-    self = "false"
+    self        = "false"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress = []
 }
 
 resource "aws_launch_template" "btlutz" {
-  name_prefix = "ecs-template"
-  image_id = "ami-062c116e449466e7f"
+  name_prefix   = "ecs-template"
+  image_id      = "ami-062c116e449466e7f"
   instance_type = "t3.micro"
 
   vpc_security_group_ids = [aws_security_group.btlutz.id]
@@ -105,28 +105,28 @@ resource "aws_launch_template" "btlutz" {
 
 resource "aws_autoscaling_group" "btlutz" {
   vpc_zone_identifier = [aws_subnet.btlutz.id]
-  desired_capacity = 1
-  max_size = 1
-  min_size = 1
+  desired_capacity    = 1
+  max_size            = 1
+  min_size            = 1
 
   launch_template {
-    id = aws_launch_template.btlutz.id
+    id      = aws_launch_template.btlutz.id
     version = "$Latest"
   }
 
   tag {
-    key = "AmazonECSManaged"
-    value = true
+    key                 = "AmazonECSManaged"
+    value               = true
     propagate_at_launch = true
   }
 }
 
 resource "aws_lb" "btlutz" {
-  name = "btlutz"
-  internal = false
+  name               = "btlutz"
+  internal           = false
   load_balancer_type = "application"
-  security_groups = [aws_security_group.btlutz.id]
-  subnets = [aws_subnet.btlutz.id]
+  security_groups    = [aws_security_group.btlutz.id]
+  subnets            = [aws_subnet.btlutz.id]
 
   tags = {
     Name = "btlutz"
@@ -134,11 +134,11 @@ resource "aws_lb" "btlutz" {
 }
 
 resource "aws_lb_target_group" "btlutz" {
-  name = "btlutz"
-  port = 80
-  protocol = "HTTP"
+  name        = "btlutz"
+  port        = 80
+  protocol    = "HTTP"
   target_type = "ip"
-  vpc_id = aws_vpc.btlutz.id
+  vpc_id      = aws_vpc.btlutz.id
 
   health_check {
     path = "/"
@@ -147,11 +147,11 @@ resource "aws_lb_target_group" "btlutz" {
 
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_lb.btlutz.arn
-  port = 80
-  protocol = "HTTP"
+  port              = 80
+  protocol          = "HTTP"
 
   default_action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.btlutz.arn
   }
 }
@@ -172,8 +172,8 @@ resource "aws_ecs_capacity_provider" "btlutz" {
     managed_scaling {
       maximum_scaling_step_size = 1000
       minimum_scaling_step_size = 1
-      status = "ENABLED"
-      target_capacity = 1
+      status                    = "ENABLED"
+      target_capacity           = 1
     }
   }
 }
@@ -184,21 +184,21 @@ resource "aws_ecs_cluster_capacity_providers" "btlutz" {
   capacity_providers = [aws_ecs_capacity_provider.btlutz.name]
 
   default_capacity_provider_strategy {
-    base = 1
-    weight = 100
+    base              = 1
+    weight            = 100
     capacity_provider = aws_ecs_capacity_provider.btlutz.name
   }
 }
 
 
 resource "aws_ecs_task_definition" "btlutz" {
-  family       = "btlutz"
-  network_mode = "awsvpc"
+  family             = "btlutz"
+  network_mode       = "awsvpc"
   execution_role_arn = "arn:aws:iam::532199187081:role/ecsTaskExecutionRole"
-  cpu = 256
+  cpu                = 256
   runtime_platform {
     operating_system_family = "LINUX"
-    cpu_architecture = "X86_64"
+    cpu_architecture        = "X86_64"
   }
   container_definitions = jsonencode([
     {
@@ -211,8 +211,8 @@ resource "aws_ecs_task_definition" "btlutz" {
         {
           containerPort = 80
           hostPort      = 80
-        }]
-    }])
+      }]
+  }])
 }
 
 resource "aws_ecs_service" "btlutz" {
@@ -222,7 +222,7 @@ resource "aws_ecs_service" "btlutz" {
   desired_count   = 1
 
   network_configuration {
-    subnets = [aws_subnet.btlutz.id]
+    subnets         = [aws_subnet.btlutz.id]
     security_groups = [aws_security_group.btlutz.id]
   }
 
@@ -234,13 +234,13 @@ resource "aws_ecs_service" "btlutz" {
 
   capacity_provider_strategy {
     capacity_provider = aws_ecs_capacity_provider.btlutz.name
-    weight = 100
+    weight            = 100
   }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.btlutz.arn
-    container_name = "dockergs"
-    container_port = 80
+    container_name   = "dockergs"
+    container_port   = 80
   }
 
   deployment_circuit_breaker {
