@@ -89,7 +89,7 @@ resource "aws_security_group" "btlutz" {
 
 resource "aws_launch_template" "btlutz" {
   name_prefix   = "ecs-template"
-  image_id      = "ami-062c116e449466e7f"
+  image_id      = "ami-08b5b3a93ed654d19"
   instance_type = "t3.micro"
 
   vpc_security_group_ids = [aws_security_group.btlutz.id]
