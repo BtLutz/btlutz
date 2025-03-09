@@ -34,7 +34,14 @@ resource "aws_vpc" "btlutz" {
   }
 }
 
-resource "aws_subnet" "btlutz" {
+resource "aws_subnet" "btlutz_a" {
+  vpc_id                  = aws_vpc.btlutz.id
+  cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1a"
+}
+
+resource "aws_subnet" "btlutz_b" {
   vpc_id                  = aws_vpc.btlutz.id
   cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
   map_public_ip_on_launch = true
@@ -56,8 +63,13 @@ resource "aws_route_table" "aws_route_table" {
   }
 }
 
-resource "aws_route_table_association" "btlutz" {
-  subnet_id      = aws_subnet.btlutz.id
+resource "aws_route_table_association" "btlutz_a" {
+  subnet_id      = aws_subnet.btlutz_a.id
+  route_table_id = aws_route_table.aws_route_table.id
+}
+
+resource "aws_route_table_association" "btlutz_b" {
+  subnet_id      = aws_subnet.btlutz_b.id
   route_table_id = aws_route_table.aws_route_table.id
 }
 
@@ -104,7 +116,7 @@ resource "aws_launch_template" "btlutz" {
 }
 
 resource "aws_autoscaling_group" "btlutz" {
-  vpc_zone_identifier = [aws_subnet.btlutz.id]
+  vpc_zone_identifier = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
   desired_capacity    = 1
   max_size            = 1
   min_size            = 1
@@ -126,7 +138,7 @@ resource "aws_lb" "btlutz" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.btlutz.id]
-  subnets            = [aws_subnet.btlutz.id]
+  subnets            = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
 
   tags = {
     Name = "btlutz"
@@ -221,7 +233,7 @@ resource "aws_ecs_service" "btlutz" {
   desired_count   = 1
 
   network_configuration {
-    subnets         = [aws_subnet.btlutz.id]
+    subnets         = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
     security_groups = [aws_security_group.btlutz.id]
   }
 
