@@ -38,7 +38,7 @@ resource "aws_subnet" "btlutz" {
   vpc_id                  = aws_vpc.btlutz.id
   cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
   map_public_ip_on_launch = true
-  availability_zone       = local.region
+  availability_zone       = "us-east-1a"
 }
 
 resource "aws_internet_gateway" "btlutz" {
