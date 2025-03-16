@@ -26,6 +26,11 @@ provider "aws" {
   region = local.region
 }
 
+data "aws_ecr_image" "service_image" {
+  repository_name = "btlutz/btlutz"
+  most_recent       = true
+}
+
 resource "aws_iam_role" "ECSTaskExecutionRole" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -189,7 +194,7 @@ resource "aws_ecs_task_definition" "btlutz" {
   container_definitions = jsonencode([
     {
       name      = "btlutz"
-      image     = "public.ecr.aws/docker/library/hello-world:latest"
+      image     = "${aws_ecr_repository.btlutz.repository_url}:71a02ca4a111e41b21cc2796631213e0fd7e7c59"
       cpu       = 256
       memory    = 512
       essential = true
