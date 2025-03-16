@@ -26,11 +26,6 @@ provider "aws" {
   region = local.region
 }
 
-data "aws_ecr_image" "service_image" {
-  repository_name = "btlutz/btlutz"
-  most_recent       = true
-}
-
 resource "aws_iam_role" "ECSTaskExecutionRole" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
