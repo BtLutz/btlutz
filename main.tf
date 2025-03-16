@@ -189,7 +189,7 @@ resource "aws_ecs_task_definition" "btlutz" {
   container_definitions = jsonencode([
     {
       name      = "btlutz"
-      image     = "${aws_ecr_repository.btlutz.repository_url}:latest"
+      image     = "public.ecr.aws/docker/library/hello-world:latest"
       cpu       = 256
       memory    = 512
       essential = true
