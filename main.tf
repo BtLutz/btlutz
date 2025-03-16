@@ -170,8 +170,8 @@ resource "aws_ecs_task_definition" "btlutz" {
   }
   container_definitions = jsonencode([
     {
-      name      = "dockergs"
-      image     = "public.ecr.aws/f9n5f1l7/dgs:latest"
+      name      = "btlutz"
+      image     = "${aws_ecr_repository.btlutz.repository_url}:latest"
       cpu       = 256
       memory    = 512
       essential = true
