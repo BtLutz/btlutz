@@ -60,6 +60,20 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
       ]
     })
   }
+  inline_policy {
+    name = "s3"
+    policy = jsonencode({
+      "Statement" : [
+        {
+          "Action" : [
+            "s3:GetObject"
+          ],
+          "Effect" : "Allow",
+          "Resource" : ["arn:aws:s3:::prod-${local.region}-starport-layer-bucket/*"]
+        }
+      ]
+    })
+  }
   tags = {
     Environment = "aws-ia-fargate"
   }
