@@ -39,20 +39,24 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
       }
     ]
   })
-  inline_policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Action" : [
-          "ecr:BatchGetImage",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:GetAuthorizationToken"
-        ],
-        "Resource" : "*"
-      }
-    ]
-  })
+
+  inline_policy {
+    name = "ecr"
+    policy = jsonencode({
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Effect" : "Allow",
+          "Action" : [
+            "ecr:BatchGetImage",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:GetAuthorizationToken"
+          ],
+          "Resource" : "*"
+        }
+      ]
+    })
+  }
 
   tags = {
     Environment = "aws-ia-fargate"
