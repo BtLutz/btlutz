@@ -36,15 +36,20 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
         }
-      },
+      }
+    ]
+  })
+  inline_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Effect": "Allow",
-        "Action": [
+        "Effect" : "Allow",
+        "Action" : [
           "ecr:BatchGetImage",
           "ecr:GetDownloadUrlForLayer",
           "ecr:GetAuthorizationToken"
         ],
-        "Resource": "*"
+        "Resource" : "*"
       }
     ]
   })
