@@ -60,11 +60,27 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
       ]
     })
   }
-
+  inline_policy {
+    name = "s3"
+    policy = jsonencode({
+      "Statement": [
+        {
+          "Sid": "Access-to-specific-bucket-only",
+          "Principal": "*",
+          "Action": [
+            "s3:GetObject"
+          ],
+          "Effect": "Allow",
+          "Resource": ["arn:aws:s3:::prod-${local.region}-starport-layer-bucket/*"]
+        }
+      ]
+    })
+  }
   tags = {
     Environment = "aws-ia-fargate"
   }
 }
+
 resource "aws_vpc" "btlutz" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -110,6 +126,21 @@ resource "aws_route_table_association" "btlutz_a" {
 resource "aws_route_table_association" "btlutz_b" {
   subnet_id      = aws_subnet.btlutz_b.id
   route_table_id = aws_route_table.aws_route_table.id
+}
+
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id = aws_vpc.btlutz.id
+  service_name = "com.amazonaws.${local.region}.ecr.dkr"
+}
+
+resource "aws_vpc_endpoint" "ecr_api" {
+  vpc_id = aws_vpc.btlutz.id
+  service_name = "com.amazonaws.${local.region}.ecr.api"
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id = aws_vpc.btlutz.id
+  service_name = "com.amazonaws.${local.region}.s3"
 }
 
 resource "aws_security_group" "btlutz" {
