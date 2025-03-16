@@ -92,52 +92,6 @@ resource "aws_security_group" "btlutz" {
   }
 }
 
-resource "aws_launch_template" "btlutz" {
-  name_prefix   = "ecs-template"
-  image_id      = "ami-08b5b3a93ed654d19"
-  instance_type = "t3.micro"
-
-  vpc_security_group_ids = [aws_security_group.btlutz.id]
-  iam_instance_profile {
-    name = "ecsInstanceRole"
-  }
-
-  block_device_mappings {
-    device_name = "/dev/xvda"
-    ebs {
-      volume_size = 30
-      volume_type = "gp2"
-    }
-  }
-
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      Name = "ecs-instance"
-    }
-  }
-
-  user_data = filebase64("${path.module}/ecs.sh")
-}
-
-resource "aws_autoscaling_group" "btlutz" {
-  vpc_zone_identifier = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
-  desired_capacity    = 1
-  max_size            = 1
-  min_size            = 1
-
-  launch_template {
-    id      = aws_launch_template.btlutz.id
-    version = "$Latest"
-  }
-
-  tag {
-    key                 = "AmazonECSManaged"
-    value               = true
-    propagate_at_launch = true
-  }
-}
-
 resource "aws_lb" "btlutz" {
   name               = "btlutz"
   internal           = false
@@ -180,38 +134,14 @@ resource "aws_ecr_repository" "btlutz" {
 resource "aws_ecs_cluster" "btlutz" {
   name = "btlutz"
 }
-resource "aws_ecs_capacity_provider" "btlutz" {
-  name = "btlutz"
-
-  auto_scaling_group_provider {
-    auto_scaling_group_arn = aws_autoscaling_group.btlutz.arn
-
-    managed_scaling {
-      maximum_scaling_step_size = 1000
-      minimum_scaling_step_size = 1
-      status                    = "ENABLED"
-      target_capacity           = 1
-    }
-  }
-}
-
-resource "aws_ecs_cluster_capacity_providers" "btlutz" {
-  cluster_name = aws_ecs_cluster.btlutz.name
-
-  capacity_providers = [aws_ecs_capacity_provider.btlutz.name]
-
-  default_capacity_provider_strategy {
-    base              = 1
-    weight            = 100
-    capacity_provider = aws_ecs_capacity_provider.btlutz.name
-  }
-}
 
 resource "aws_ecs_task_definition" "btlutz" {
   family             = "btlutz"
   network_mode       = "awsvpc"
   execution_role_arn = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
   cpu                = 256
+  requires_compatibilities = ["FARGATE"]
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
@@ -237,21 +167,11 @@ resource "aws_ecs_service" "btlutz" {
   cluster         = aws_ecs_cluster.btlutz.id
   task_definition = aws_ecs_task_definition.btlutz.arn
   desired_count   = 1
+  launch_type = "FARGATE"
 
   network_configuration {
     subnets         = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
     security_groups = [aws_security_group.btlutz.id]
-  }
-
-  force_new_deployment = true
-
-  triggers = {
-    redeployment = timestamp()
-  }
-
-  capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.btlutz.name
-    weight            = 100
   }
 
   load_balancer {
@@ -264,6 +184,4 @@ resource "aws_ecs_service" "btlutz" {
     enable   = true
     rollback = false
   }
-
-  depends_on = [aws_autoscaling_group.btlutz]
 }
