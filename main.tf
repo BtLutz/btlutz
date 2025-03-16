@@ -136,10 +136,10 @@ resource "aws_ecs_cluster" "btlutz" {
 }
 
 resource "aws_ecs_task_definition" "btlutz" {
-  family             = "btlutz"
-  network_mode       = "awsvpc"
-  execution_role_arn = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
-  cpu                = 256
+  family                   = "btlutz"
+  network_mode             = "awsvpc"
+  execution_role_arn       = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
+  cpu                      = 256
   requires_compatibilities = ["FARGATE"]
 
   runtime_platform {
@@ -167,7 +167,7 @@ resource "aws_ecs_service" "btlutz" {
   cluster         = aws_ecs_cluster.btlutz.id
   task_definition = aws_ecs_task_definition.btlutz.arn
   desired_count   = 1
-  launch_type = "FARGATE"
+  launch_type     = "FARGATE"
 
   network_configuration {
     subnets         = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
