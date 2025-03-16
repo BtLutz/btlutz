@@ -61,11 +61,10 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
     })
   }
   inline_policy {
-    name = "esthree"
+    name = "s3"
     policy = jsonencode({
       "Statement" : [
         {
-          "Sid" : "Access-to-specific-bucket-only",
           "Principal" : "*",
           "Action" : [
             "s3:GetObject"
