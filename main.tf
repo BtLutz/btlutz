@@ -40,6 +40,15 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
           Service = "ecs-tasks.amazonaws.com"
         }
       },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:GetAuthorizationToken"
+        ],
+        "Resource": "*"
+      }
     ]
   })
 
