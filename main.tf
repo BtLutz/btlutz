@@ -61,17 +61,17 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
     })
   }
   inline_policy {
-    name = "s3"
+    name = "esthree"
     policy = jsonencode({
-      "Statement": [
+      "Statement" : [
         {
-          "Sid": "Access-to-specific-bucket-only",
-          "Principal": "*",
-          "Action": [
+          "Sid" : "Access-to-specific-bucket-only",
+          "Principal" : "*",
+          "Action" : [
             "s3:GetObject"
           ],
-          "Effect": "Allow",
-          "Resource": ["arn:aws:s3:::prod-${local.region}-starport-layer-bucket/*"]
+          "Effect" : "Allow",
+          "Resource" : ["arn:aws:s3:::prod-${local.region}-starport-layer-bucket/*"]
         }
       ]
     })
@@ -129,18 +129,21 @@ resource "aws_route_table_association" "btlutz_b" {
 }
 
 resource "aws_vpc_endpoint" "ecr_dkr" {
-  vpc_id = aws_vpc.btlutz.id
-  service_name = "com.amazonaws.${local.region}.ecr.dkr"
+  vpc_id            = aws_vpc.btlutz.id
+  service_name      = "com.amazonaws.${local.region}.ecr.dkr"
+  vpc_endpoint_type = "Interface"
 }
 
 resource "aws_vpc_endpoint" "ecr_api" {
-  vpc_id = aws_vpc.btlutz.id
-  service_name = "com.amazonaws.${local.region}.ecr.api"
+  vpc_id            = aws_vpc.btlutz.id
+  service_name      = "com.amazonaws.${local.region}.ecr.api"
+  vpc_endpoint_type = "Interface"
 }
 
 resource "aws_vpc_endpoint" "s3" {
-  vpc_id = aws_vpc.btlutz.id
-  service_name = "com.amazonaws.${local.region}.s3"
+  vpc_id            = aws_vpc.btlutz.id
+  service_name      = "com.amazonaws.${local.region}.s3"
+  vpc_endpoint_type = "Interface"
 }
 
 resource "aws_security_group" "btlutz" {
