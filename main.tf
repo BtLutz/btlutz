@@ -140,6 +140,7 @@ resource "aws_ecs_task_definition" "btlutz" {
   network_mode             = "awsvpc"
   execution_role_arn       = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
   cpu                      = 256
+  memory                   = 512
   requires_compatibilities = ["FARGATE"]
 
   runtime_platform {
