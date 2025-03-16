@@ -198,7 +198,7 @@ resource "aws_ecs_service" "btlutz" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.btlutz.arn
-    container_name   = "dockergs"
+    container_name   = "btlutz"
     container_port   = 80
   }
 
