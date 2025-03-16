@@ -26,6 +26,27 @@ provider "aws" {
   region = local.region
 }
 
+resource "aws_iam_role" "ECSTaskExecutionRole" {
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    Environment = "aws-ia-fargate"
+  }
+}
 resource "aws_vpc" "btlutz" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -138,7 +159,7 @@ resource "aws_ecs_cluster" "btlutz" {
 resource "aws_ecs_task_definition" "btlutz" {
   family                   = "btlutz"
   network_mode             = "awsvpc"
-  execution_role_arn       = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
+  execution_role_arn       = aws_iam_role.ECSTaskExecutionRole.arn
   cpu                      = 256
   memory                   = 512
   requires_compatibilities = ["FARGATE"]
