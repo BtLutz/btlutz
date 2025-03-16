@@ -48,9 +48,12 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
         {
           "Effect" : "Allow",
           "Action" : [
-            "ecr:BatchGetImage",
+            "ecr:GetAuthorizationToken",
+            "ecr:BatchCheckLayerAvailability",
             "ecr:GetDownloadUrlForLayer",
-            "ecr:GetAuthorizationToken"
+            "ecr:BatchGetImage",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
           ],
           "Resource" : "*"
         }
@@ -174,7 +177,7 @@ resource "aws_ecs_cluster" "btlutz" {
 resource "aws_ecs_task_definition" "btlutz" {
   family                   = "btlutz"
   network_mode             = "awsvpc"
-  execution_role_arn       = aws_iam_role.ECSTaskExecutionRole.arn
+  execution_role_arn       = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
   cpu                      = 256
   memory                   = 512
   requires_compatibilities = ["FARGATE"]
