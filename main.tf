@@ -121,6 +121,20 @@ resource "aws_lb_target_group" "btlutz" {
   }
 }
 
+resource "aws_acm_certificate" "ecs_alb_listener_acm_certificate" {
+  domain_name = "btlutz.com"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_lb_listener_certificate" "ecs_alb_listener_certificate" {
+  listener_arn = aws_lb_listener.ecs_alb_listener.arn
+  certificate_arn = aws_acm_certificate.ecs_alb_listener_acm_certificate.arn
+}
+
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_alb.btlutz.arn
   port              = 80
