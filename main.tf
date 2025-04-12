@@ -73,8 +73,6 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
 }
 
 resource "aws_security_group" "btlutz" {
-  name   = "aws_security_group"
-
   ingress {
     from_port   = 0
     to_port     = 0
