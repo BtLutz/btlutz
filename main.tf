@@ -199,8 +199,11 @@ resource "aws_route53_zone" "primary" {
 
 resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "www.btlutz.com"
+  name    = "btlutz.com"
   type    = "A"
-  ttl     = 300
-  records = [aws_alb.btlutz.dns_name]
+  alias {
+    name                   = aws_alb.btlutz.dns_name
+    zone_id                = aws_alb.btlutz.zone_id
+    evaluate_target_health = true
+  }
 }
