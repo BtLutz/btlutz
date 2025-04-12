@@ -113,18 +113,12 @@ resource "aws_security_group" "aws_alb_security_group" {
 }
 
 resource "aws_alb" "btlutz" {
-  name               = "btlutz"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.aws_alb_security_group.id]
   subnets            = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
-
-  tags = {
-    Name = "btlutz"
-  }
 }
 
 resource "aws_lb_target_group" "btlutz" {
-  name        = "btlutz"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
