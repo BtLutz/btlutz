@@ -4,10 +4,6 @@ terraform {
       source  = "hashicorp/aws" # Specify the source of the AWS provider
       version = "~> 4.0"        # Use a version of the AWS provider that is compatible with version
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "3.4.3"
-    }
   }
   backend "remote" {
     organization = "TheLonelyGecko"
