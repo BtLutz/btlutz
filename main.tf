@@ -119,7 +119,7 @@ resource "aws_alb" "btlutz" {
 }
 
 resource "aws_lb_target_group" "btlutz" {
-  port        = 80
+  port        = 8080
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_default_vpc.default_vpc.id
@@ -169,8 +169,8 @@ resource "aws_ecs_task_definition" "btlutz" {
       essential = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 8080
+          hostPort      = 8080
           protocol      = "tcp"
       }]
   }])
@@ -191,7 +191,7 @@ resource "aws_ecs_service" "btlutz" {
   load_balancer {
     target_group_arn = aws_lb_target_group.btlutz.arn
     container_name   = "btlutz"
-    container_port   = 80
+    container_port   = 8080
   }
 
   deployment_circuit_breaker {
