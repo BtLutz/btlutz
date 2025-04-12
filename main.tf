@@ -185,6 +185,7 @@ resource "aws_ecs_service" "btlutz" {
 
   network_configuration {
     subnets         = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
+    assign_public_ip = true
     security_groups = [aws_security_group.btlutz.id]
   }
 
