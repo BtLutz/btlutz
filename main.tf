@@ -192,3 +192,7 @@ resource "aws_ecs_service" "btlutz" {
     rollback = false
   }
 }
+
+resource "aws_route53_zone" "primary" {
+  name = "btlutz.com"
+}
