@@ -123,7 +123,7 @@ resource "aws_lb_target_group" "btlutz" {
 
 resource "aws_acm_certificate" "ecs_alb_listener_acm_certificate" {
   domain_name       = "btlutz.com"
-  validation_method = "EMAIL"
+  validation_method = "DNS"
 
   lifecycle {
     create_before_destroy = true
@@ -132,13 +132,14 @@ resource "aws_acm_certificate" "ecs_alb_listener_acm_certificate" {
 
 resource "aws_acm_certificate_validation" "validation" {
   certificate_arn = aws_acm_certificate.ecs_alb_listener_acm_certificate.arn
+  validation_record_fqdns = [for record in aws_route53_record.www : record.fqdn]
 }
 
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_alb.btlutz.arn
   port              = 80
   protocol          = "HTTPS"
-  certificate_arn   = aws_acm_certificate.ecs_alb_listener_acm_certificate.arn
+  certificate_arn   = aws_acm_certificate_validation.validation.certificate_arn
 
   default_action {
     type             = "forward"
@@ -213,11 +214,22 @@ resource "aws_route53_zone" "primary" {
 
 resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "btlutz.com"
+  name    = each.value.name
   type    = "A"
   alias {
     name                   = aws_alb.btlutz.dns_name
     zone_id                = aws_alb.btlutz.zone_id
     evaluate_target_health = true
   }
+
+  for_each = {
+    for dvo in aws_acm_certificate.ecs_alb_listener_acm_certificate.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+
 }
