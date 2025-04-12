@@ -77,8 +77,6 @@ resource "aws_security_group" "btlutz" {
     from_port   = 0
     to_port     = 0
     protocol    = -1
-    self        = "false"
-    cidr_blocks = ["0.0.0.0/0"]
     security_groups = [aws_security_group.aws_alb_security_group.id]
   }
   egress {
