@@ -130,15 +130,11 @@ resource "aws_acm_certificate" "ecs_alb_listener_acm_certificate" {
   }
 }
 
-resource "aws_lb_listener_certificate" "ecs_alb_listener_certificate" {
-  listener_arn = aws_lb_listener.ecs_alb_listener.arn
-  certificate_arn = aws_acm_certificate.ecs_alb_listener_acm_certificate.arn
-}
-
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_alb.btlutz.arn
   port              = 80
   protocol          = "HTTPS"
+  certificate_arn = aws_acm_certificate.ecs_alb_listener_acm_certificate.arn
 
   default_action {
     type             = "forward"
