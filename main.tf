@@ -163,7 +163,7 @@ resource "aws_ecs_task_definition" "btlutz" {
   container_definitions = jsonencode([
     {
       name      = "btlutz"
-      image     = "372340059345.dkr.ecr.us-east-1.amazonaws.com/btlutz:fc79f96bddc0ed55ae473bc7f96ddd705d37e586"
+      image     = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
       cpu       = 256
       memory    = 512
       essential = true
