@@ -184,9 +184,9 @@ resource "aws_ecs_service" "btlutz" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
+    subnets          = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
     assign_public_ip = true
-    security_groups = [aws_security_group.btlutz.id]
+    security_groups  = [aws_security_group.btlutz.id]
   }
 
   load_balancer {
