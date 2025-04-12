@@ -122,7 +122,7 @@ resource "aws_lb_target_group" "btlutz" {
 }
 
 resource "aws_acm_certificate" "ecs_alb_listener_acm_certificate" {
-  domain_name = "btlutz.com"
+  domain_name       = "btlutz.com"
   validation_method = "DNS"
 
   lifecycle {
@@ -134,7 +134,7 @@ resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_alb.btlutz.arn
   port              = 80
   protocol          = "HTTPS"
-  certificate_arn = aws_acm_certificate.ecs_alb_listener_acm_certificate.arn
+  certificate_arn   = aws_acm_certificate.ecs_alb_listener_acm_certificate.arn
 
   default_action {
     type             = "forward"
