@@ -36,7 +36,7 @@ resource "aws_default_subnet" "default_subnet_c" {
   availability_zone = "us-east-1c"
 }
 
-resource "aws_iam_role" "ECSTaskExecutionRole" {
+resource "aws_iam_role" "ecs_task_execution_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -49,44 +49,6 @@ resource "aws_iam_role" "ECSTaskExecutionRole" {
       }
     ]
   })
-
-  inline_policy {
-    name = "ecr"
-    policy = jsonencode({
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-          "Effect" : "Allow",
-          "Action" : [
-            "ecr:GetAuthorizationToken",
-            "ecr:BatchCheckLayerAvailability",
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:BatchGetImage",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-          ],
-          "Resource" : "*"
-        }
-      ]
-    })
-  }
-  inline_policy {
-    name = "s3"
-    policy = jsonencode({
-      "Statement" : [
-        {
-          "Action" : [
-            "s3:GetObject"
-          ],
-          "Effect" : "Allow",
-          "Resource" : ["arn:aws:s3:::prod-${local.region}-starport-layer-bucket/*"]
-        }
-      ]
-    })
-  }
-  tags = {
-    Environment = "aws-ia-fargate"
-  }
 }
 
 resource "aws_vpc" "btlutz" {
@@ -227,7 +189,7 @@ resource "aws_ecs_cluster" "btlutz" {
 resource "aws_ecs_task_definition" "btlutz" {
   family                   = "btlutz"
   network_mode             = "awsvpc"
-  execution_role_arn       = "arn:aws:iam::372340059345:role/ecsTaskExecutionRole"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   cpu                      = 256
   memory                   = 512
   requires_compatibilities = ["FARGATE"]
