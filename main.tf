@@ -74,9 +74,9 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
 
 resource "aws_security_group" "btlutz" {
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
+    from_port       = 0
+    to_port         = 0
+    protocol        = -1
     security_groups = [aws_security_group.aws_alb_security_group.id]
   }
   egress {
@@ -89,7 +89,7 @@ resource "aws_security_group" "btlutz" {
 
 resource "aws_security_group" "aws_alb_security_group" {
   ingress {
-    description= "entry port"
+    description = "entry port"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -97,7 +97,7 @@ resource "aws_security_group" "aws_alb_security_group" {
   }
 
   ingress {
-    description= "django port"
+    description = "django port"
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
