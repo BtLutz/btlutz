@@ -127,11 +127,11 @@ resource "aws_route_table_association" "btlutz_b" {
 }
 
 resource "aws_vpc_endpoint" "ecr_dkr" {
-  vpc_id              = aws_vpc.btlutz.id
-  service_name        = "com.amazonaws.${local.region}.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
-  security_group_ids  = [aws_security_group.btlutz.id]
+  vpc_id             = aws_vpc.btlutz.id
+  service_name       = "com.amazonaws.${local.region}.ecr.dkr"
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
+  security_group_ids = [aws_security_group.btlutz.id]
 }
 
 resource "aws_vpc_endpoint" "ecr_api" {
