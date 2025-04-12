@@ -51,6 +51,11 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+  role = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
 resource "aws_vpc" "btlutz" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
