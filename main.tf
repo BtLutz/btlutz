@@ -153,7 +153,7 @@ resource "aws_lb" "btlutz" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.btlutz.id]
-  subnets            = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
+  subnets            = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
 
   tags = {
     Name = "btlutz"
@@ -165,7 +165,7 @@ resource "aws_lb_target_group" "btlutz" {
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
-  vpc_id      = aws_vpc.btlutz.id
+  vpc_id      = aws_default_vpc.default_vpc.id
 
   health_check {
     path = "/"
@@ -227,7 +227,7 @@ resource "aws_ecs_service" "btlutz" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
+    subnets         = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
     security_groups = [aws_security_group.btlutz.id]
   }
 
