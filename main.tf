@@ -56,82 +56,8 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_vpc" "btlutz" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  tags = {
-    name = "btlutz"
-  }
-}
-
-resource "aws_subnet" "btlutz_a" {
-  vpc_id                  = aws_vpc.btlutz.id
-  cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 1)
-  map_public_ip_on_launch = true
-  availability_zone       = "us-east-1a"
-}
-
-resource "aws_subnet" "btlutz_b" {
-  vpc_id                  = aws_vpc.btlutz.id
-  cidr_block              = cidrsubnet(aws_vpc.btlutz.cidr_block, 8, 2)
-  map_public_ip_on_launch = true
-  availability_zone       = "us-east-1b"
-}
-
-resource "aws_internet_gateway" "btlutz" {
-  vpc_id = aws_vpc.btlutz.id
-  tags = {
-    Name = "aws_internet_gateway"
-  }
-}
-
-resource "aws_route_table" "aws_route_table" {
-  vpc_id = aws_vpc.btlutz.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.btlutz.id
-  }
-}
-
-resource "aws_route_table_association" "btlutz_a" {
-  subnet_id      = aws_subnet.btlutz_a.id
-  route_table_id = aws_route_table.aws_route_table.id
-}
-
-resource "aws_route_table_association" "btlutz_b" {
-  subnet_id      = aws_subnet.btlutz_b.id
-  route_table_id = aws_route_table.aws_route_table.id
-}
-
-resource "aws_vpc_endpoint" "ecr_dkr" {
-  vpc_id              = aws_vpc.btlutz.id
-  service_name        = "com.amazonaws.${local.region}.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
-  security_group_ids  = [aws_security_group.btlutz.id]
-  private_dns_enabled = true
-}
-
-resource "aws_vpc_endpoint" "ecr_api" {
-  vpc_id              = aws_vpc.btlutz.id
-  service_name        = "com.amazonaws.${local.region}.ecr.api"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
-  security_group_ids  = [aws_security_group.btlutz.id]
-  private_dns_enabled = true
-}
-
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id              = aws_vpc.btlutz.id
-  service_name        = "com.amazonaws.${local.region}.s3"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.btlutz_a.id, aws_subnet.btlutz_b.id]
-  security_group_ids  = [aws_security_group.btlutz.id]
-}
-
 resource "aws_security_group" "btlutz" {
   name   = "aws_security_group"
-  vpc_id = aws_vpc.btlutz.id
 
   ingress {
     from_port   = 0
