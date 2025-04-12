@@ -123,8 +123,9 @@ resource "aws_lb_target_group" "btlutz" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_default_vpc.default_vpc.id
+
   health_check {
-    enabled = false
+    path = ""
   }
 }
 
