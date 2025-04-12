@@ -148,9 +148,8 @@ resource "aws_security_group" "btlutz" {
   }
 }
 
-resource "aws_lb" "btlutz" {
+resource "aws_alb" "btlutz" {
   name               = "btlutz"
-  internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.btlutz.id]
   subnets            = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
@@ -173,7 +172,7 @@ resource "aws_lb_target_group" "btlutz" {
 }
 
 resource "aws_lb_listener" "ecs_alb_listener" {
-  load_balancer_arn = aws_lb.btlutz.arn
+  load_balancer_arn = aws_alb.btlutz.arn
   port              = 80
   protocol          = "HTTP"
 
