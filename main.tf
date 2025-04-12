@@ -163,7 +163,7 @@ resource "aws_ecs_task_definition" "btlutz" {
   container_definitions = jsonencode([
     {
       name      = "btlutz"
-      image     = "${aws_ecr_repository.btlutz.repository_url}:71a02ca4a111e41b21cc2796631213e0fd7e7c59"
+      image     = "public.ecr.aws/docker/library/hello-world:nanoserver-1809"
       cpu       = 256
       memory    = 512
       essential = true
