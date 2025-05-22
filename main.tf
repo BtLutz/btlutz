@@ -108,6 +108,7 @@ resource "aws_alb" "btlutz" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.aws_alb_security_group.id]
   subnets            = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
+
 }
 
 resource "aws_lb_target_group" "btlutz" {
@@ -130,6 +131,8 @@ resource "aws_lb_listener" "ecs_alb_listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.btlutz.arn
   }
+
+  certificate_arn = aws_acm_certificate_validation.btlutz.certificate_arn
 }
 
 resource "aws_ecr_repository" "btlutz" {
@@ -198,12 +201,30 @@ resource "aws_route53_zone" "primary" {
 }
 
 resource "aws_route53_record" "www" {
+  for_each = {
+    for dvo in aws_acm_certificate.btlutz.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "btlutz.com"
-  type    = "A"
+  name    = each.value.name
+  type    = each.value.type
+  ttl     = 60
   alias {
     name                   = aws_alb.btlutz.dns_name
     zone_id                = aws_alb.btlutz.zone_id
     evaluate_target_health = true
   }
+}
+
+resource "aws_acm_certificate" "btlutz" {
+  domain_name       = "btlutz.com"
+  validation_method = "DNS"
+}
+
+resource "aws_acm_certificate_validation" "btlutz" {
+  certificate_arn         = aws_acm_certificate.btlutz.arn
+  validation_record_fqdns = [for record in aws_route53_record.www : record.fqdn]
 }
