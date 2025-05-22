@@ -200,7 +200,7 @@ resource "aws_route53_zone" "primary" {
   name = "btlutz.com"
 }
 
-resource "aws_route53_record" "www_2" {
+resource "aws_route53_record" "www" {
   for_each = {
     for dvo in aws_acm_certificate.btlutz.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
