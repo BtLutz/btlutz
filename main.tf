@@ -213,11 +213,6 @@ resource "aws_route53_record" "www" {
   name    = each.value.name
   type    = each.value.type
   ttl     = 60
-  alias {
-    name                   = aws_alb.btlutz.dns_name
-    zone_id                = aws_alb.btlutz.zone_id
-    evaluate_target_health = true
-  }
 }
 
 resource "aws_acm_certificate" "btlutz" {
