@@ -132,7 +132,7 @@ resource "aws_lb_listener" "https" {
     target_group_arn = aws_lb_target_group.btlutz.arn
   }
 
-  certificate_arn = aws_acm_certificate.btlutz.arn
+  certificate_arn = aws_acm_certificate.https.arn
 }
 
 resource "aws_ecr_repository" "btlutz" {
@@ -211,14 +211,14 @@ resource "aws_route53_record" "www" {
   }
 }
 
-resource "aws_acm_certificate" "btlutz" {
+resource "aws_acm_certificate" "https" {
   domain_name       = "btlutz.com"
   validation_method = "EMAIL"
 }
 
 resource "aws_route53_record" "https" {
   for_each = {
-    for dvo in aws_acm_certificate.btlutz.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.https.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
