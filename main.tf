@@ -201,19 +201,14 @@ resource "aws_route53_zone" "primary" {
 }
 
 resource "aws_route53_record" "www" {
-  for_each = {
-    for dvo in aws_acm_certificate.btlutz.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "btlutz.com"
+  type    = "A"
+  alias {
+    name                   = aws_alb.btlutz.dns_name
+    zone_id                = aws_alb.btlutz.zone_id
+    evaluate_target_health = true
   }
-  allow_overwrite = true
-  zone_id         = aws_route53_zone.primary.zone_id
-  name            = each.value.name
-  type            = each.value.type
-  records         = [each.value.record]
-  ttl             = 60
 }
 
 resource "aws_acm_certificate" "btlutz" {
