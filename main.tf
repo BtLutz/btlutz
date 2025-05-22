@@ -213,7 +213,7 @@ resource "aws_route53_record" "www" {
 
 resource "aws_acm_certificate" "btlutz" {
   domain_name       = "btlutz.com"
-  validation_method = "DNS"
+  validation_method = "EMAIL"
 }
 
 resource "aws_route53_record" "https" {
@@ -231,9 +231,4 @@ resource "aws_route53_record" "https" {
   ttl             = 60
   type            = each.value.type
   zone_id         = aws_route53_zone.primary.zone_id
-}
-
-resource "aws_acm_certificate_validation" "btlutz" {
-  certificate_arn         = aws_acm_certificate.btlutz.arn
-  validation_record_fqdns = [for record in aws_route53_record.https : record.fqdn]
 }
