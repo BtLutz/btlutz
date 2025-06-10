@@ -125,6 +125,7 @@ resource "aws_lb_target_group" "btlutz" {
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_alb.btlutz.arn
   port              = 443
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
   protocol          = "HTTPS"
 
   default_action {
